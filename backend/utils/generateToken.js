@@ -5,7 +5,7 @@ const generateTokenAndSetCookie =(userId, res)=>{
         expiresIn: "15d"
     });
 // here a jwt token is made, it takes userId as a payload (so that this token can be identified as only for userId)
-// then its token is encodes using JWT_SECRET
+// then its token is encoded using JWT_SECRET
 // -------------------------------------
 // *************whole process is:************* 
 // Client sends req res object when SIGNUP or LOGIN, userId is fetched from req, and use as a payload use krke jwt token bnane bhej dete h

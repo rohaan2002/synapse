@@ -64,7 +64,7 @@ export const signup = async(req,res)=>{
 export const login = async(req,res)=>{
     try{
       const {username, password} = req.body;
-      const user = await User.findOne({username});
+      const user = await User.findOne({username});  //findOne and findById are mongoDB functions. diff is findOne takes an object, findById just value
 
       const isPassCorrect = await bcrypt.compare(password, user?.password || "")
 
@@ -102,5 +102,12 @@ export const logout = async(req,res)=>{
 }
 
 export const getMe= async(req,res)=>{
-  
+  try{
+    const user = await User.findById(req.user._id)
+    res.status(200).json(user)
+  }catch(err){
+    console.log("Error occured in getMe controller", err.message);
+    res.status(500).json("Internal Server Error");
+
+  }
 }
