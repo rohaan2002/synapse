@@ -71,7 +71,7 @@ export const getSuggestedUsers=async(req,res,next)=>{
         const users = await User.aggregate([
             {
                 $match: {
-                    _id :{$ne: userId}  //_id for the "users" should be NOT EQUAL(ne) to userId (khud na ho wo user un selected users m se)
+                    _id :{$ne: userId}  //_id for the "users" should be NOT EQUAL(ne) to userId (khud na ho wo user unn selected users m se)
                  }
             },
             {
@@ -82,8 +82,11 @@ export const getSuggestedUsers=async(req,res,next)=>{
         const filteredUsers =  users.filter(user=>!UsersFollowedByMe.following.includes(user._id));
         // const filteredUsers =  users.filter(user=>!UsersFollowedByMe); 
         //wont this do THE SAME THING??? whats the point in checking if your followed users have you in their following? they'd have you obv!!
+        // BUT LATTER DOESNT WORK !!!!!!!!!
 
         const suggestedUsers = filteredUsers.slice(0,4);  //shuru ke 4 dedo filteredUsers m se - 0,1,2,3 - last index is excluded
+
+        suggestedUsers.forEach((user)=> (user.password = null));
 
         return res.status(200).json(suggestedUsers);
 
