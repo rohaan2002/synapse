@@ -1,6 +1,10 @@
+import bcrypt from "bcryptjs";
+import {v2 as cloudinary} from 'cloudinary'
+
+// models
 import User from "../models/user.model.js";
 import Notif from "../models/notification.model.js"
-export const getUserProfile=async(req,res,next)=>{
+export const getUserProfile=async(req,res)=>{
    const {username} = req.params;
    try{
     const user = await User.findOne({username}).select("-password")
@@ -14,7 +18,7 @@ export const getUserProfile=async(req,res,next)=>{
    }
 }
 
-export const followUnfollowUser=async(req,res,next)=>{
+export const followUnfollowUser=async(req,res)=>{
    const {id}= req.params;
    try{
     const userToModify = await User.findById(id);
@@ -62,7 +66,7 @@ export const followUnfollowUser=async(req,res,next)=>{
    }
 }
 
-export const getSuggestedUsers=async(req,res,next)=>{
+export const getSuggestedUsers=async(req,res)=>{
     try{
         const userId = req.user._id;
 
@@ -97,8 +101,79 @@ export const getSuggestedUsers=async(req,res,next)=>{
 }
 
 
+export const updateUser=async(req,res)=>{
+    const {fullname, username, email, currentPassword, newPassword, bio, link} = req.body;
 
+    let {profileImg, coverImg} = req.body;
+    const userId = req.user._id;
 
-export const updateUserProfile=(req,res,next)=>{
-    res.send("get user hitted")
+    try{
+        let user = await User.findById(userId);
+
+        if(!user) return res.status(400).json({error: "User not found"})
+   
+        if((!currentPassword && newPassword)||(currentPassword && !newPassword)){
+            return res.status(400).json({error: "Either current or new password is missing. Provide both."})
+        }
+    
+        if(currentPassword && newPassword){
+        const isMatch =  await bcrypt.compare(currentPassword, user.password )
+
+        if(!isMatch)  return res.status(400).json({error: "Incorrect current password."})
+
+        if(newPassword.length<6){
+            return res.status(400).json({error: "Password should be atleast 6 digit long."})
+        }
+        const salt = await bcrypt.genSalt(10)
+
+        user.password = await bcrypt.hash(newPassword,salt )
+        }
+        if(profileImg){
+            if(user.profileImg){
+                // agr phle se img pdhi h to use delete krenge phle tb jake nyi update krenge DB m
+
+                // FOR EX: user.profileImg =
+                // https://res.cloudinary.com/demo/image/upload/v1234567890/sample.jpg
+
+                await cloudinary.uploader.destroy(user.profileImg.split('/')[7].split('.')[0])
+                // doing this we get id of the img => "sample" from the url we have from 'user.profileImg'
+
+            }
+            const uploadResponse=await cloudinary.uploader.upload(profileImg)
+            profileImg = uploadResponse.secure_url;
+        }
+
+        if(coverImg){
+            if(user.coverImg){
+                     // agr phle se img pdhi h to use delete krenge phle tb jake nyi update krenge DB m
+
+                // FOR EX: user.coverImg =
+                // https://res.cloudinary.com/demo/image/upload/v1234567890/sample.jpg
+
+                await cloudinary.uploader.destroy(user.coverImg.split('/')[7].split('.')[0])
+                // doing this we get id of the img => "sample" from the url we have from 'user.coverImg'
+
+            }
+             const uploadResponse = await cloudinary.uploader.upload(coverImg);
+             coverImg = uploadResponse.secure_url;
+        }
+
+        user.fullname = fullname || user.fullname //if we get a 'fullname' from req.body, then we'll update it in DB else, use the one we have in DB already
+        // SAME WITH OTHERS
+        user.email = email || user.email
+        user.link = link || user.link
+        user.bio = bio || user.bio
+        user.profileImg = profileImg || user.profileImg
+        user.coverImg = coverImg || user.coverImg
+
+        await user.save(); // updated user with all the changes saved in DB;
+        
+        user.password = null; //user already saved so this nulling is done so that password isnt revealed in the res
+
+        return res.status(201).json(user); //user khud obj h to curly m dalne ki jrurt ni
+     
+    }catch(err){
+        console.log("Error in updateUser controller", err.message);
+        res.status(400).json({error: `Internal Server Error in updateUser: ${err.message}`})
+    }
 }
