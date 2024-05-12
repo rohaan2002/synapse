@@ -1,6 +1,7 @@
 import express from 'express';
 import authRoutes from './routes/auth.routes.js'
 import userRoutes from './routes/user.routes.js'
+import postRoutes from './routes/post.routes.js'
 import cors from 'cors'
 import dotenv from 'dotenv';
 import connectMongoDB from './db/connectMongo.js';
@@ -22,6 +23,7 @@ app.use(cookieParser());  // to parse cookie, now u can access it from req.cooki
 
 app.use("/api/auth", authRoutes)
 app.use("/api/users", userRoutes)
+app.use("/api/posts", postRoutes)
 
 
 app.get("/" , (req,res)=>{
