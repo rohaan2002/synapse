@@ -1,4 +1,4 @@
-import XSvg from "../svgs/X";
+import XSvg from "../svg/SynapseSvg.jsx";
 
 import { MdHomeFilled } from "react-icons/md";
 import { IoNotifications } from "react-icons/io5";
@@ -17,7 +17,9 @@ const Sidebar = () => {
 		<div className='md:flex-[2_2_0] w-18 max-w-52'>
 			<div className='sticky top-0 left-0 h-screen flex flex-col border-r border-gray-700 w-20 md:w-full'>
 				<Link to='/' className='flex justify-center md:justify-start'>
-					<XSvg className='px-2 w-12 h-12 rounded-full fill-white hover:bg-stone-900' />
+                    <div className="px-2 w-20 h-20 rounded-full fill-white hover:bg-stone-900">
+					<XSvg className='px-2 w-10 h-10 rounded-full fill-white hover:bg-stone-900' />
+                    </div>
 				</Link>
 				<ul className='flex flex-col gap-3 mt-4'>
 					<li className='flex justify-center md:justify-start'>
