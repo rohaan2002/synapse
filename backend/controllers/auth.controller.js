@@ -87,7 +87,7 @@ export const login = async(req,res)=>{
 
     }catch(err){
       console.log("Something wrong in login controller: ", err.message);
-      res.status(500).json({error: "Internal Server Error"})
+      res.status(500).json({error: "Internal Server Error"})  //json keys shud always be enclosed by double quotes - this parser is forgiving
     }
 }
 

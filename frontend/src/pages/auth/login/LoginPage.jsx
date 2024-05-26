@@ -1,19 +1,60 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import XSvg from "../../../components/svg/SynapseSvg";
+import SynapseSvg from "../../../components/svg/SynapseSvg";
 
 import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+
 
 const LoginPage = () => {
 	const [formData, setFormData] = useState({
 		username: "",
 		password: "",
 	});
+	const queryClient = useQueryClient()
+	const {mutate: loginMutation, isPending, isError, error } = useMutation({
+		mutationFn: async({username, password})=>{
+			try{
+				const res = await fetch("/api/auth/login",{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body:JSON.stringify({
+						username, password
+					})
+				})
+				console.log();
+				const data = await res.json();
+
+				if(!res.ok) throw new Error (data.error||"Can't Login right now! Error in Login Mutation")
+
+				console.log(data);
+			}catch(error){
+				// toast.error(error.message);
+				alert(error.message)
+				console.log(error);
+				throw error;
+			}
+		},
+		
+		onSuccess: ()=> {
+
+			queryClient.invalidateQueries({queryKey: ['authUser']}) // authUser  getme endpoint ka response h. 
+			toast.success("Logged in successfully!")
+			// alert("Logged in successfully")
+
+
+		}
+	})
+
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
+		loginMutation(formData); //loginMutation is just 'mutate' renamed as 'loginMutate' doesnt give off the right vibe for login
 		console.log(formData);
 	};
 
@@ -21,17 +62,17 @@ const LoginPage = () => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
-	const isError = false;
+	
 
 	return (
 		<div className='max-w-screen-xl mx-auto flex h-screen'>
-			<div className='flex-1 hidden lg:flex items-center  justify-center'>
-				<XSvg className='lg:w-2/3 fill-white' />
+			<div className='flex-1 hidden lg:flex items-center  justify-center pr-10'>
+				<SynapseSvg className='lg:w-2/3 fill-white' />
 			</div>
 			<div className='flex-1 flex flex-col justify-center items-center'>
 				<form className='flex gap-4 flex-col' onSubmit={handleSubmit}>
           <div className="lg:hidden">
-					<XSvg className='w-24 lg:hidden fill-white' />
+					<SynapseSvg className='w-24 lg:hidden fill-white' />
           </div>
 					<h1 className='text-4xl font-extrabold text-white'>{"Let's"} go.</h1>
 					<label className='input input-bordered rounded flex items-center gap-2'>
@@ -57,8 +98,8 @@ const LoginPage = () => {
 							value={formData.password}
 						/>
 					</label>
-					<button className='btn rounded-full btn-primary text-white'>Login</button>
-					{isError && <p className='text-red-500'>Something went wrong</p>}
+					<button className='btn rounded-full btn-primary text-white'>{isPending?"Loading..": "Login"}</button>
+					{isError && <p className='text-red-500'>{error.message||"Something's wrong in Login Mutation"}</p>}
 				</form>
 				<div className='flex flex-col gap-2 mt-4'>
 					<p className='text-white text-lg'>{"Don't"} have an account?</p>

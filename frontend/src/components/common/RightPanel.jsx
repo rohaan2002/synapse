@@ -3,7 +3,7 @@ import RightPanelSkeleton from "../skeletons/RightPanelSkeletons.jsx";
 import { USERS_FOR_RIGHT_PANEL } from "../../utils/dummy";
 
 const RightPanel = () => {
-	const isLoading = true;
+	const isLoading = false;
 
 	return (
 		<div className='hidden lg:block my-24 mx-1 ml-3 mr-0'>
