@@ -1,10 +1,28 @@
 import { Link } from "react-router-dom";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeletons.jsx";
-import { USERS_FOR_RIGHT_PANEL } from "../../utils/dummy";
+// import { USERS_FOR_RIGHT_PANEL } from "../../utils/dummy";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 const RightPanel = () => {
-	const isLoading = false;
+	const {data: suggestedUsers, isLoading}= useQuery({
+		queryKey: ['suggestedUsers'],
+		queryFn: async()=>{
+			try{
+				const res = await fetch("/api/users/suggested");
 
+				const data = await res.json();
+
+				if(!res.ok) throw new Error (data.error|| "Something wrong while fetching Suggested Posts")
+
+				return data;
+			}catch(error){
+				throw error;
+			}
+		}
+	})
+
+	if(suggestedUsers?.length===0) return <></>
+	
 	return (
 		<div className='hidden lg:block my-24 mx-1 ml-3 mr-0'>
 			<div className='bg-[#8b1e87] p-4 rounded-md sticky top-2'>
@@ -20,7 +38,7 @@ const RightPanel = () => {
 						</>
 					)}
 					{!isLoading &&
-						USERS_FOR_RIGHT_PANEL?.map((user) => (
+						suggestedUsers?.map((user) => (
 							<Link
 								to={`/profile/${user.username}`}
 								className='flex items-center justify-between gap-4'
@@ -34,7 +52,7 @@ const RightPanel = () => {
 									</div>
 									<div className='flex flex-col'>
 										<span className='font-semibold tracking-tight truncate w-28'>
-											{user.fullName}
+											{user.fullname}
 										</span>
 										<span className='text-sm text-slate-400'>@{user.username}</span>
 									</div>
