@@ -75,7 +75,10 @@ export const likeUnlikePost=async(req,res)=>{
             // unlike
             await Post.findByIdAndUpdate(postId, {$pull: {likes: userId}})
             await User.findByIdAndUpdate(userId, {$pull:{likedPosts: postId}})
-            res.status(200).json({message: "Post unliked successfully!"})
+
+            const updatedLikes = post.likes.filter((likingGuysId)=> likingGuysId.toString()!== userId.toString()) //agr liked array m koi id user ki id se match horhi to use chordke baki sare ids rhenge updatedLikes main (user ka like htake baki sb as it is)
+            // ye array mne bs isliye bnaya h taki ye post specific return kr sku and after liking likes render krne m ease ho (puri query firse refetch na krni pde)
+            res.status(200).json(updatedLikes)
         }
         else{
             // like
@@ -91,7 +94,9 @@ export const likeUnlikePost=async(req,res)=>{
 
             await notification.save();
 
-            res.status(200).json({message: "post liked successfully"})
+            const updatedLikes = post.likes
+
+            res.status(200).json(updatedLikes)
         }
     }catch(err){
         console.log("Error in likeUnlikePost in post controller: ", err.message);
