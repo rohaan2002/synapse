@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeletons.jsx";
-// import { USERS_FOR_RIGHT_PANEL } from "../../utils/dummy";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import useFollow from "../hooks/useFollow.jsx";
+import LoadingSpinner from "./LoadingSpinner.jsx";
 
 const RightPanel = () => {
 	const {data: suggestedUsers, isLoading}= useQuery({
@@ -20,6 +21,12 @@ const RightPanel = () => {
 			}
 		}
 	})
+
+	// kisi bhi return se phle use krna hota h hooks ko  and nested function m ni bs ye dhyaan rkhna.
+
+	const {follow, isPending} = useFollow();
+
+	
 
 	if(suggestedUsers?.length===0) return <></>
 	
@@ -60,9 +67,12 @@ const RightPanel = () => {
 								<div>
 									<button
 										className='btn bg-white text-black hover:bg-white border-none hover:opacity-90 rounded-full btn-sm'
-										onClick={(e) => e.preventDefault()}
+										onClick={(e) =>{
+											 e.preventDefault();
+											 follow(user._id)
+											}}
 									>
-										Follow
+										{isPending? <LoadingSpinner size="sm"/>:"Follow"}
 									</button>
 								</div>
 							</Link>
