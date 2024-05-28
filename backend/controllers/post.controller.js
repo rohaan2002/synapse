@@ -138,7 +138,16 @@ export const getAllPosts=async(req,res)=>{
         // populate krne pr jaha uska ref h us document m se pura object le ayega corresp.
         // so userId wale user ki puri info along with fullname, username, profilepic etc store hojayegi user m as an object and not only userId 
 
-        const posts = await Post.find().sort({createdAt: -1}).populate("user")
+        const posts = await Post.find()
+        .sort({ createdAt: -1 })
+        .populate({
+            path: "user",
+            select: "-password",
+        })
+        .populate({
+            path: "comments.user",
+            select: "-password",
+        });
         
         // agr populate krne ke baad pass htana h to-
         // const posts = await Post.find().sort({createdAt: -1}).populate({

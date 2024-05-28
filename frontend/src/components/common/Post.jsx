@@ -5,6 +5,7 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import {formatPostDate} from "./../../utils/date.js"
 import {
   useMutation,
   useQuery,
@@ -22,9 +23,10 @@ const Post = ({ post }) => {
 
   const isMyPost = authUser._id === post.user._id;
 
-  const formattedDate = "1h";
+  const formattedDate = formatPostDate(post.createdAt);
 
   const isCommenting = false;
+
 
   const {
     mutate: deletePostMutation,
@@ -83,12 +85,38 @@ const Post = ({ post }) => {
 	}
 
   })
+
+  const {mutate: commentMutate, isPending: pendingComment} = useMutation({
+    mutationFn: async()=> {
+      try{
+        const res = await fetch (`/api/posts/comment/${post._id}`,{
+          method: "POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body: JSON.stringify({text: comment})
+        })
+        const data = await res.json();
+  
+        if(!res.ok) throw new Error (data.error || "Something wrong in comment mutation")
+          return data;
+      }catch(error){
+        throw error;
+      }
+    },
+    onSuccess: ()=>{
+      queryClient.invalidateQueries({queryKey:['postsQuery']})
+      toast.success("Comment Succesfully!")
+    }
+  })
+
   const handleDeletePost = () => {
     const decision = confirm("You sure wanna delete this post?");
     decision ? deletePostMutation() : "";
   };
 
   const handlePostComment = (e) => {
+    commentMutate();
     e.preventDefault();
   };
 
@@ -186,7 +214,7 @@ const Post = ({ post }) => {
                         <div className="flex flex-col">
                           <div className="flex items-center gap-1">
                             <span className="font-bold">
-                              {comment.user.fullName}
+                              {comment.user.fullname}
                             </span>
                             <span className="text-gray-700 text-sm">
                               @{comment.user.username}
