@@ -4,8 +4,11 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
+import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const NotificationPage = () => {
+	const queryClient = useQueryClient();
 	const isLoading = false;
 	const notifications = [
 		{
@@ -28,9 +31,51 @@ const NotificationPage = () => {
 		},
 	];
 
+	const {data: notifData, isError} = useQuery({
+		queryKey:['notificationsQuery'],
+		queryFn: async()=>{
+			try{
+				const res = await fetch ("/api/notifs")
+				const data = await res.json();
+
+				if(!res.ok) throw new Error (data.error|| "Error while fetching notification")
+					return data;
+			}catch(error){
+				throw error;
+			}
+		
+		},
+		
+		
+	})
+
+	const {mutate: deleteNotifMutate} = useMutation({
+		mutationFn: async()=>{
+			try{
+				const res = await fetch ("/api/notifs", {
+					method :"DELETE"
+				})
+				const data = await res.json();
+
+				if(!res.ok) throw new Error (data.error|| "Error while deleting notification")
+					return data; //return data when you want to use it in say, onSuccess etc. its the data that backend returns when you run a specific query as written in backend
+			}catch(error){
+				throw error;
+			}
+		},
+		onError:()=>{
+			toast.error(data.message)
+		},
+		onSuccess: ()=>{
+			queryClient.invalidateQueries('notificationsQuery');
+			// queryClient.invalidateQueries({queryKey:['notificationsQuery']}) // this is another way to do same thing
+			toast.success("Notifications deleted successfully!")
+		}
+	})
 	const deleteNotifications = () => {
+		deleteNotifMutate();
 		alert("All notifications deleted");
-	};
+   };
 
 	return (
 		<>
@@ -56,8 +101,8 @@ const NotificationPage = () => {
 						<LoadingSpinner size='lg' />
 					</div>
 				)}
-				{notifications?.length === 0 && <div className='text-center p-4 font-bold'>No notifications 🤔</div>}
-				{notifications?.map((notification) => (
+				{notifData?.length === 0 && <div className='text-center p-4 font-bold'>No notifications 🤔</div>}
+				{notifData?.map((notification) => (
 					<div className='border-b border-gray-700' key={notification._id}>
 						<div className='flex gap-2 p-4'>
 							{notification.type === "follow" && <FaUser className='w-7 h-7 text-primary' />}
