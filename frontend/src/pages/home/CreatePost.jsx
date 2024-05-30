@@ -52,7 +52,7 @@ const CreatePost = () => {
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		createPostMutation({text, img})
-		alert("Post created successfully");
+		toast.success("Post created successfully");
 	};
 
 	const handleImgChange = (e) => {

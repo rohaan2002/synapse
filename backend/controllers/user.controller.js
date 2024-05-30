@@ -102,7 +102,7 @@ export const getSuggestedUsers=async(req,res)=>{
 
 
 export const updateUser=async(req,res)=>{
-    const {fullname, username, email, currentPassword, newPassword, bio, link} = req.body;
+    const {fullname,email, username,  currentPassword, newPassword, bio, link} = req.body;
 
     let {profileImg, coverImg} = req.body;
     const userId = req.user._id;
@@ -160,6 +160,7 @@ export const updateUser=async(req,res)=>{
 
         user.fullname = fullname || user.fullname //if we get a 'fullname' from req.body, then we'll update it in DB else, use the one we have in DB already
         // SAME WITH OTHERS
+        user.username= username || user.username,
         user.email = email || user.email
         user.link = link || user.link
         user.bio = bio || user.bio

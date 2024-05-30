@@ -178,7 +178,7 @@ export const getLikedPosts=async(req,res)=>{
             select: "-password"
         });
 
-        if(postsLiked.length===0) return res.status(200).json({message: "zero posts liked"})
+        if(postsLiked.length===0) return res.status(200).json([])
 
         res.status(201).json(postsLiked)
     }catch(err){
