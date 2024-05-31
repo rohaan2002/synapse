@@ -76,7 +76,7 @@ const ProfilePage = () => {
   };
 
   const postsMade = useQuery({queryKey: ['postsQuery']});
-  const currProfilePostLength = pos;
+  // const currProfilePostLength = pos;
   return (
     <>
       <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
@@ -95,7 +95,7 @@ const ProfilePage = () => {
                 <div className="flex flex-col">
                   <p className="font-bold text-lg">{userData?.fullname}</p>
                   <span className="text-sm text-slate-500">
-                    {Posts?.length} posts
+                    {/* {Posts?.length} posts */}
                   </span>
                 </div>
               </div>
